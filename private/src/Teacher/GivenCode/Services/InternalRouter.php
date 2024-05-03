@@ -11,13 +11,19 @@ declare(strict_types=1);
 
 namespace Teacher\GivenCode\Services;
 
+use Marc\Project\controllers\myTestController;
+use Teacher\Examples\Controllers\AuthorController;
+use Teacher\Examples\Controllers\BookController;
 use Teacher\Examples\Controllers\ExampleController;
-use Teacher\GivenCode\Abstracts\AbstractController;
+use Teacher\Examples\Controllers\LoginController;
+use Teacher\Examples\Controllers\MyNewController;
+use Teacher\Examples\Controllers\PageNavigator;
 use Teacher\GivenCode\Abstracts\IService;
+use Teacher\GivenCode\Domain\AbstractRoute;
 use Teacher\GivenCode\Domain\APIRoute;
+use Teacher\GivenCode\Domain\CallableRoute;
 use Teacher\GivenCode\Domain\RouteCollection;
 use Teacher\GivenCode\Domain\WebpageRoute;
-use Teacher\GivenCode\Enumerations\HTTPMethodsEnum;
 use Teacher\GivenCode\Exceptions\RequestException;
 use Teacher\GivenCode\Exceptions\ValidationException;
 
@@ -40,8 +46,14 @@ class InternalRouter implements IService {
         $this->uriBaseDirectory = $uri_base_directory;
         $this->routes = new RouteCollection();
         $this->routes->addRoute(new APIRoute("/api/exampleDTO", ExampleController::class));
+        $this->routes->addRoute(new APIRoute("/api/login", LoginController::class));
+        $this->routes->addRoute(new APIRoute("/api/books", BookController::class));
+        $this->routes->addRoute(new APIRoute("/api/authors", AuthorController::class));
         $this->routes->addRoute(new WebpageRoute("/index.php", "Teacher/Examples/example_page.php"));
         $this->routes->addRoute(new WebpageRoute("/", "Teacher/Examples/example_page.php"));
+        $this->routes->addRoute(new CallableRoute("/pages/login", [PageNavigator::class, "loginPage"]));
+        $this->routes->addRoute(new CallableRoute("/pages/books", [PageNavigator::class, "booksManagementPage"]));
+        $this->routes->addRoute(new CallableRoute("/pages/authors", [PageNavigator::class, "authorsManagementPage"]));
     }
     
     /**
@@ -55,7 +67,7 @@ class InternalRouter implements IService {
      */
     public function route() : void {
         $path = REQUEST_PATH;
-        $route = $this->routes->match($path, $this->uriBaseDirectory);
+        $route = $this->routes->match($path);
         
         if (is_null($route)) {
             // route not found
@@ -64,5 +76,19 @@ class InternalRouter implements IService {
         
         $route->route();
         
+    }
+    
+    /**
+     * Adds an {@see AbstractRoute internal route definition} to the {@see InternalRouter}'s {@see RouteCollection}.
+     *
+     * @param AbstractRoute $route The route definition to add to the route collection.
+     * @return void
+     * @throws ValidationException
+     *
+     * @author Marc-Eric Boury
+     * @since  2024-04-12
+     */
+    public function addRoute(AbstractRoute $route) : void {
+        $this->routes->addRoute($route);
     }
 }
