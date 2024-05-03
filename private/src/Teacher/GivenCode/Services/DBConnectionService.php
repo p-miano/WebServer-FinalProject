@@ -19,7 +19,8 @@ use Teacher\GivenCode\Exceptions\RuntimeException;
  * @since  2024-03-16
  */
 class DBConnectionService implements IService {
-    private const DB_NAME = "codeblockdb";
+    
+    private const DB_NAME = "420dw3_07278_project";
     private static ?PDO $CONNECTION = null;
     
     /**
