@@ -8,21 +8,13 @@ declare(strict_types=1);
 
 namespace Teacher\GivenCode\Abstracts;
 
-use Debug;
+use Teacher\GivenCode\Abstracts\IController;
 use Teacher\GivenCode\Enumerations\HTTPMethodsEnum;
 use Teacher\GivenCode\Exceptions\RequestException;
 
 abstract class AbstractController implements IController {
     
     public function __construct() {}
-    
-    abstract public function get() : void;
-    
-    abstract public function post() : void;
-    
-    abstract public function put() : void;
-    
-    abstract public function delete() : void;
     
     public function getAllowedMethods() : array {
         $allowed_methods_array = [];
@@ -51,7 +43,7 @@ abstract class AbstractController implements IController {
                 "Allow" => implode(", ", $this->getAllowedMethods())
             ]);
         }
-        Debug::log("Controller: calling method " . static::class . "::$class_method().");
+        \Debug::log("Controller: calling method " . static::class . "::$class_method().");
         static::$class_method();
     }
 }

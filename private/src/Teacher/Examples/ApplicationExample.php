@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Teacher\Examples;
 
-use Debug;
-use ErrorException;
-use Exception;
+use Teacher\GivenCode\Exceptions\RequestException;
 use Teacher\GivenCode\Services\InternalRouter;
 
 /**
@@ -38,26 +36,18 @@ class ApplicationExample {
      * @since  2024-03-16
      */
     public function run() : void {
-        // start the output buffering
-        ob_start();
         try {
-            // route the request
             $this->router->route();
-            
-            $error = error_get_last();
-            if ($error === null) {
-                // flush the output buffer
-                ob_end_flush();
-                return;
+        } catch (RequestException $request_exep) {
+            foreach ($request_exep->getHttpHeaders() as $header_name => $header_value) {
+                header($header_name . ": " . $header_value);
             }
-            throw new ErrorException($error['message'], 500, $error['type'], $error['file'], $error['line']);
-            
-        } catch (Exception $exception) {
-            // empty the output buffer (without flushing)
-            ob_end_clean();
-            // handle the exception and generate an error response.
-            Debug::logException($exception);
-            Debug::outputException($exception);
+            \Debug::logException($request_exep);
+            http_response_code($request_exep->getHttpResponseCode());
+            die();
+        } catch (\Exception $other_exception) {
+            \Debug::logException($other_exception);
+            http_response_code(500);
             die();
         }
     }
