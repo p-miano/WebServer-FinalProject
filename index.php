@@ -9,7 +9,7 @@ declare(strict_types=1);
  * (c) Copyright 2024 Marc-Eric Boury 
  */
 
-require_once "private/helpers/init.php";
+require_once __DIR__ . "/private/helpers/init.php";
 
 use Teacher\Examples\ApplicationExample;
 
